@@ -19,9 +19,9 @@ enum Priority: String, Codable {
 final class Task {
     var id: UUID = UUID()
     var name: String
-    private var createdAt: Date = Date.now
-    private var dueDate: Date?
-    private var isCompleted: Bool = false
+    var createdAt: Date = Date.now
+    var dueDate: Date?
+    var isCompleted: Bool = false
     var priority: Priority?
     
     init(name: String, dueDate: Date?, priority: Priority?) {

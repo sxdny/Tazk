@@ -10,7 +10,9 @@ import SwiftData
 
 struct CreateTaskView: View {
     
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) var modelContext
+    
+    @Binding var isCreateTaskPresented: Bool
     
     @State private var dateIsShown: Bool = false
     @State private var timeIsShown: Bool = false
@@ -18,10 +20,22 @@ struct CreateTaskView: View {
     
     @State private var taskName: String = ""
     @State private var dueDate: Date = Date()
-    @Query private var tasks: [Task]
+    @State private var taskPriority: Priority?
+    
+    @Query var tasks: [Task]
     
     var body: some View {
         NavigationStack {
+            
+            HStack {
+                Text("Fill the form to create a new task.")
+                    .foregroundColor(.secondary)
+                    .padding(.leading)
+                Spacer()
+                    
+            }
+                
+            
             Form {
                 Section("Task") {
                     TextField("Task name", text: $taskName)
@@ -64,27 +78,37 @@ struct CreateTaskView: View {
                 }
                 
                 Section {
-                    Button(action: createTask) {
+                    Button(action: {
+                        createTask(name: taskName, dueDate: dueDate, priority: taskPriority)
+                    }) {
                         Text("Create task")
                     }
                 }
                 
             }
             .navigationTitle("Add a new task")
+            .toolbar {
+                Button(action: closeMenu) {
+                    Text("Close")
+                }
+            }
         }
-        .modelContainer(for: Task.self)
         
     }
                            
-    func createTask() {
-        if(!priorityIsShown) {
-            let newTask = Task(name: taskName, dueDate: nil, priority: nil)
-            modelContext.insert(newTask)
-        }
+    func createTask(name: String, dueDate: Date?, priority: Priority?) {
+        let newTask = Task(name: name, dueDate: dueDate, priority: priority)
+        modelContext.insert(newTask)
+        isCreateTaskPresented = false
+        
+        
+    }
+    
+    func closeMenu() {
+        isCreateTaskPresented = false
     }
 }
 
 #Preview {
-    CreateTaskView()
-        
+    ContentView()
 }

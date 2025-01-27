@@ -11,32 +11,53 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var tasks: [Task]
+    
+    @State var isCreateTaskPresented: Bool = false
+    @State var isCompleted: Bool = false
 
     var body: some View {
         NavigationStack {
-            List {
-                if tasks.isEmpty {
-                    Text("No tasks yet. Create one to start managing them!")
+            VStack {
+                if (tasks.isEmpty) {
+                    Text("There are no tasks yet.")
+                                                
                 } else {
-                    ForEach(tasks) { task in
-                        Text(task.name)
+                    List {
+                        Text("Today").font(.headline)
+                            .listRowSeparator(.hidden)
+
+                        ForEach(tasks) { task in
+                            
+                            TaskView(task: task)
+                               
+                        }
                     }
+                    .listStyle(.plain)
+                   
                 }
             }
+            
             .toolbar {
                 ToolbarItem {
-                    NavigationLink(destination: CreateTaskView()) {
+                    Button(action: closeCreataTaskView) {
                         Text("Add a new task")
-                        Image(systemName: "plus")
+                        
+                    }.popover(isPresented: $isCreateTaskPresented) {
+                        CreateTaskView(isCreateTaskPresented: $isCreateTaskPresented)
                     }
                 }
             }
+            
+            .navigationTitle(Text("Tazk"))
         }
-        .modelContainer(for: Task.self)
+        
+    }
+    
+    func closeCreataTaskView() {
+        isCreateTaskPresented = true
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Task.self, inMemory: true)
 }
