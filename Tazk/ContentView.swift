@@ -23,17 +23,32 @@ struct ContentView: View {
                                                 
                 } else {
                     List {
-                        Text("Today").font(.headline)
+                        VStack(alignment: .leading) {
+                            Text("Not completed").font(.headline)
+                            HStack {
+                                // TODO: Order the tasks
+                            }
+                        
+                        }.listRowSeparator(.hidden)
+                        
+
+                        ForEach(tasks) { task in
+                            if !task.isCompleted {
+                                TaskView(task: task)
+                            }
+                        }
+                        
+                        Text("Completed").font(.headline)
                             .listRowSeparator(.hidden)
 
                         ForEach(tasks) { task in
-                            
-                            TaskView(task: task)
-                               
+                            if task.isCompleted {
+                                TaskView(task: task)
+                            }
                         }
                     }
                     .listStyle(.plain)
-                   
+                
                 }
             }
             

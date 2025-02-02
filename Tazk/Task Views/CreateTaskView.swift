@@ -19,10 +19,25 @@ struct CreateTaskView: View {
     @State private var priorityIsShown: Bool = false
     
     @State private var taskName: String = ""
-    @State private var dueDate: Date = Date()
+    @State private var date: Date?
+    @State private var time: Date?
+    
+    @State private var dateSelected: Date = Date()
+    @State private var timeSelected: Date = Date()
+    
     @State private var taskPriority: Priority?
     
     @Query var tasks: [Task]
+    
+    private var dateRange: ClosedRange<Date> {
+        if dateIsShown  {
+                print("Hello")
+                return Date()...Date().addingTimeInterval(86400)
+            } else {
+                print("Else")
+                return Date()...Date.distantFuture
+            }
+        }
     
     var body: some View {
         NavigationStack {
@@ -50,10 +65,10 @@ struct CreateTaskView: View {
                     }
                     
                     if(priorityIsShown) {
-                        Picker("Select a priority", selection: .constant(1)) {
-                            Text("High").tag(1)
-                            Text("Medium").tag(2)
-                            Text("Low").tag(3)
+                        Picker("Select a priority", selection: $taskPriority) {
+                            Text("High").tag(Priority.high)
+                            Text("Medium").tag(Priority.medium)
+                            Text("Low").tag(Priority.low)
                         }
                             
                     }
@@ -63,8 +78,13 @@ struct CreateTaskView: View {
                     }
                     
                     if(dateIsShown) {
-                        DatePicker("Due date", selection: $dueDate, displayedComponents: [.date])
+                        
+                        DatePicker("Due date",
+                                   selection: $dateSelected,
+                                   in: Date()...,
+                                   displayedComponents: [.date])
                             .datePickerStyle(.graphical)
+                            
                     }
                     
                     Toggle(isOn: $timeIsShown) {
@@ -72,14 +92,17 @@ struct CreateTaskView: View {
                     }
                     
                     if(timeIsShown) {
-                        DatePicker("Select a due time", selection: $dueDate, displayedComponents: .hourAndMinute)
+                        DatePicker("Select a due time",
+                                selection: $timeSelected,
+                                   in: dateRange,
+                                displayedComponents: .hourAndMinute)
                             .datePickerStyle(.graphical)
                     }
                 }
                 
                 Section {
                     Button(action: {
-                        createTask(name: taskName, dueDate: dueDate, priority: taskPriority)
+                        createTask(name: taskName, dueDate: date, dueTime: time, priority: taskPriority)
                     }) {
                         Text("Create task")
                     }
@@ -96,12 +119,27 @@ struct CreateTaskView: View {
         
     }
                            
-    func createTask(name: String, dueDate: Date?, priority: Priority?) {
-        let newTask = Task(name: name, dueDate: dueDate, priority: priority)
-        modelContext.insert(newTask)
-        isCreateTaskPresented = false
+    func createTask(name: String, dueDate: Date?, dueTime: Date?, priority: Priority?) {
         
+        if (dateIsShown) {
+            date = dateSelected
+        } else {
+            date = nil
+        }
         
+        if (timeIsShown) {
+            time = timeSelected
+        } else {
+            time = nil
+        }
+        
+        if(taskName != "") {
+            let newTask = Task(name: name, dueDate: date, dueTime: time, priority: priority)
+            modelContext.insert(newTask)
+            isCreateTaskPresented = false
+        }
+        
+        // TODO: Show Dialog Error
     }
     
     func closeMenu() {
@@ -109,6 +147,4 @@ struct CreateTaskView: View {
     }
 }
 
-#Preview {
-    ContentView()
-}
+

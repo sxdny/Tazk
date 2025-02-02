@@ -21,12 +21,14 @@ final class Task {
     var name: String
     var createdAt: Date = Date.now
     var dueDate: Date?
+    var dueTime: Date?
     var isCompleted: Bool = false
     var priority: Priority?
     
-    init(name: String, dueDate: Date?, priority: Priority?) {
+    init(name: String, dueDate: Date?, dueTime: Date?, priority: Priority?) {
         self.name = name
         self.dueDate = dueDate
+        self.dueTime = dueTime
         self.priority = priority
     }
     
